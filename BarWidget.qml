@@ -71,13 +71,27 @@ Panel {
   property string errorMessage: ""
 
   function formatAppName(slug) {
-    var s = String(slug || "unknown")
-    if (s === "antigravity-cli") return "Antigravity CLI"
+    var s = String(slug || "unknown").toLowerCase()
+    if (s === "antigravity-cli") return "AGY CLI"
+    if (s === "antigravity") return "AGY"
+    if (s === "dsh") return "DeepSeek Harness"
+    if (s === "omp") return "Oh My Pi (OMP)"
+    if (s === "opencode") return "OpenCode"
+    if (s === "openclaw") return "OpenClaw"
     if (s === "codex") return "Codex"
     if (s === "hermes") return "Hermes"
     if (s === "pi") return "Pi"
     if (s === "claude" || s === "claude-code") return "Claude Code"
-    if (s === "opencode") return "OpenCode"
+    if (s === "cline") return "Cline"
+    if (s === "gemini") return "Gemini CLI"
+    if (s === "qwen") return "Qwen CLI"
+    if (s === "kimi") return "Kimi CLI"
+    if (s === "goose") return "Goose"
+    if (s === "grok") return "Grok"
+    if (s === "fx") return "Fx"
+    if (s === "kilo" || s === "kilocode") return "Kilo Code"
+    if (s === "freebuff") return "Freebuff"
+    if (s === "zcode") return "ZCode"
     if (s === "cursor") return "Cursor"
     if (s.length > 0) return s.charAt(0).toUpperCase() + s.slice(1)
     return s
@@ -200,8 +214,8 @@ Panel {
         for (var m in modelMap) {
           var mEntry = modelMap[m]
           var mTokens = mEntry.input + mEntry.output + mEntry.cacheRead + mEntry.cacheWrite
-          // Include every model that has at least 1 token or cost > 0
-          if (mTokens > 0 || mEntry.cost > 0) {
+          // Include every model that has at least 1 token, cost > 0, or message calls > 0
+          if (mTokens > 0 || mEntry.cost > 0 || mEntry.messageCount > 0) {
             modelList.push(mEntry)
           }
         }
@@ -245,8 +259,8 @@ Panel {
         for (var k in appMap) {
           var aEntry = appMap[k]
           var aTokens = aEntry.input + aEntry.output + aEntry.cacheRead + aEntry.cacheWrite
-          // Include every app that has at least 1 token or cost > 0
-          if (aTokens > 0 || aEntry.cost > 0) {
+          // Include every app that has at least 1 token, cost > 0, or message calls > 0
+          if (aTokens > 0 || aEntry.cost > 0 || aEntry.messageCount > 0) {
             appList.push(aEntry)
           }
         }
@@ -824,8 +838,8 @@ Panel {
                     }
 
                     Text {
-                      text: itemCost > 0 ? root.formatCost(itemCost) : (itemTokens > 0 ? "free" : "$0.00")
-                      color: itemCost > 0 ? root.foreground : root.emeraldColor
+                      text: itemCost > 0 ? root.formatCost(itemCost) : (itemTokens > 0 ? "free" : (Number(modelData.messageCount || 0) > 0 ? (modelData.messageCount + " calls") : "$0.00"))
+                      color: itemCost > 0 ? root.foreground : (itemTokens > 0 ? root.emeraldColor : root.subtleText)
                       font.family: root.fontFamily
                       font.pixelSize: Style.font.bodySmall
                       font.bold: true
