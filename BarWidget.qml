@@ -104,6 +104,7 @@ Panel {
 
   function formatCost(val) {
     var num = Number(val || 0)
+    if (num > 0 && num < 0.01) return "<$0.01"
     return "$" + num.toFixed(2)
   }
 
@@ -169,17 +170,56 @@ Panel {
       root.totalMessages = Number(parsed.totalMessages || 0)
 
       if (Array.isArray(parsed.entries) && parsed.entries.length > 0) {
-        // 1. Models sorted by spend
-        var sorted = parsed.entries.slice().sort(function(a, b) {
-          return Number(b.cost || 0) - Number(a.cost || 0)
-        })
-        root.topEntries = sorted.slice(0, 5)
-
-        // 2. Apps aggregated by client
-        var appMap = {}
+        // 1. Models: aggregate by model name to show total per model across all clients
+        var modelMap = {}
         for (var i = 0; i < parsed.entries.length; i++) {
           var item = parsed.entries[i]
-          var appKey = item.client || "other"
+          var mKey = item.model || "unknown"
+          if (!modelMap[mKey]) {
+            modelMap[mKey] = {
+              model: mKey,
+              cost: 0,
+              input: 0,
+              output: 0,
+              cacheRead: 0,
+              cacheWrite: 0,
+              reasoning: 0,
+              messageCount: 0
+            }
+          }
+          modelMap[mKey].cost += Number(item.cost || 0)
+          modelMap[mKey].input += Number(item.input || 0)
+          modelMap[mKey].output += Number(item.output || 0)
+          modelMap[mKey].cacheRead += Number(item.cacheRead || 0)
+          modelMap[mKey].cacheWrite += Number(item.cacheWrite || 0)
+          modelMap[mKey].reasoning += Number(item.reasoning || 0)
+          modelMap[mKey].messageCount += Number(item.messageCount || 0)
+        }
+
+        var modelList = []
+        for (var m in modelMap) {
+          var mEntry = modelMap[m]
+          var mTokens = mEntry.input + mEntry.output + mEntry.cacheRead + mEntry.cacheWrite
+          // Include every model that has at least 1 token or cost > 0
+          if (mTokens > 0 || mEntry.cost > 0) {
+            modelList.push(mEntry)
+          }
+        }
+        // Sort by cost descending; tie-break by total tokens descending
+        modelList.sort(function(a, b) {
+          var costDiff = Number(b.cost || 0) - Number(a.cost || 0)
+          if (Math.abs(costDiff) > 0.00001) return costDiff
+          var tokensA = a.input + a.output + a.cacheRead + a.cacheWrite
+          var tokensB = b.input + b.output + b.cacheRead + b.cacheWrite
+          return tokensB - tokensA
+        })
+        root.topEntries = modelList
+
+        // 2. Apps: aggregated by client
+        var appMap = {}
+        for (var j = 0; j < parsed.entries.length; j++) {
+          var appItem = parsed.entries[j]
+          var appKey = appItem.client || "other"
           if (!appMap[appKey]) {
             appMap[appKey] = {
               name: appKey,
@@ -188,22 +228,35 @@ Panel {
               output: 0,
               cacheRead: 0,
               cacheWrite: 0,
+              reasoning: 0,
               messageCount: 0
             }
           }
-          appMap[appKey].cost += Number(item.cost || 0)
-          appMap[appKey].input += Number(item.input || 0)
-          appMap[appKey].output += Number(item.output || 0)
-          appMap[appKey].cacheRead += Number(item.cacheRead || 0)
-          appMap[appKey].cacheWrite += Number(item.cacheWrite || 0)
-          appMap[appKey].messageCount += Number(item.messageCount || 0)
+          appMap[appKey].cost += Number(appItem.cost || 0)
+          appMap[appKey].input += Number(appItem.input || 0)
+          appMap[appKey].output += Number(appItem.output || 0)
+          appMap[appKey].cacheRead += Number(appItem.cacheRead || 0)
+          appMap[appKey].cacheWrite += Number(appItem.cacheWrite || 0)
+          appMap[appKey].reasoning += Number(appItem.reasoning || 0)
+          appMap[appKey].messageCount += Number(appItem.messageCount || 0)
         }
+
         var appList = []
         for (var k in appMap) {
-          appList.push(appMap[k])
+          var aEntry = appMap[k]
+          var aTokens = aEntry.input + aEntry.output + aEntry.cacheRead + aEntry.cacheWrite
+          // Include every app that has at least 1 token or cost > 0
+          if (aTokens > 0 || aEntry.cost > 0) {
+            appList.push(aEntry)
+          }
         }
+        // Sort by cost descending; tie-break by total tokens descending
         appList.sort(function(a, b) {
-          return Number(b.cost || 0) - Number(a.cost || 0)
+          var costDiff = Number(b.cost || 0) - Number(a.cost || 0)
+          if (Math.abs(costDiff) > 0.00001) return costDiff
+          var tokensA = a.input + a.output + a.cacheRead + a.cacheWrite
+          var tokensB = b.input + b.output + b.cacheRead + b.cacheWrite
+          return tokensB - tokensA
         })
         root.topAppEntries = appList
         root.topClient = appList.length > 0 ? root.formatAppName(appList[0].name) : ""
@@ -290,7 +343,7 @@ Panel {
     open: root.opened
     focusTarget: keyCatcher
     contentWidth: panel.fittedContentWidth(Style.space(340))
-    contentHeight: panel.fittedContentHeight(contentColumn.implicitHeight, Style.space(480))
+    contentHeight: panel.fittedContentHeight(contentColumn.implicitHeight, Style.space(520))
 
     PanelKeyCatcher {
       id: keyCatcher
@@ -311,10 +364,21 @@ Panel {
         }
       }
 
-      Column {
-        id: contentColumn
-        width: parent.width
-        spacing: Style.space(10)
+      Flickable {
+        id: panelFlick
+        anchors.fill: parent
+        contentWidth: width
+        contentHeight: contentColumn.implicitHeight
+        clip: true
+        boundsBehavior: Flickable.StopAtBounds
+        flickableDirection: Flickable.VerticalFlick
+        interactive: contentHeight > height
+        ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+
+        Column {
+          id: contentColumn
+          width: panelFlick.width
+          spacing: Style.space(10)
 
         // 1. COMPACT TOP HEADER: BRAND + SEGMENTED PILL
         Item {
@@ -685,10 +749,27 @@ Panel {
 
               readonly property bool isModelMode: root.breakdownMode === "models"
               readonly property string itemName: isModelMode ? (modelData.model || "unknown") : root.formatAppName(modelData.name)
-              readonly property real itemTokens: Number(modelData.input || 0) + Number(modelData.output || 0) + Number(modelData.cacheRead || 0)
+              readonly property real itemTokens: Number(modelData.input || 0) + Number(modelData.output || 0) + Number(modelData.cacheRead || 0) + Number(modelData.cacheWrite || 0)
               readonly property real itemCost: Number(modelData.cost || 0)
               readonly property var activeList: isModelMode ? root.topEntries : root.topAppEntries
-              readonly property real maxCost: activeList.length > 0 ? Math.max(0.01, Number(activeList[0].cost || 0)) : 1.0
+              readonly property real maxCost: {
+                if (!activeList || activeList.length === 0) return 1.0
+                var mc = 0
+                for (var ci = 0; ci < activeList.length; ci++) {
+                  var c = Number(activeList[ci].cost || 0)
+                  if (c > mc) mc = c
+                }
+                return Math.max(0.01, mc)
+              }
+              readonly property real maxTokens: {
+                if (!activeList || activeList.length === 0) return 1.0
+                var mt = 0
+                for (var ti = 0; ti < activeList.length; ti++) {
+                  var t = Number(activeList[ti].input || 0) + Number(activeList[ti].output || 0) + Number(activeList[ti].cacheRead || 0) + Number(activeList[ti].cacheWrite || 0)
+                  if (t > mt) mt = t
+                }
+                return Math.max(1.0, mt)
+              }
 
               BorderSurface {
                 anchors.fill: parent
@@ -701,7 +782,11 @@ Panel {
                   anchors.left: parent.left
                   anchors.top: parent.top
                   anchors.bottom: parent.bottom
-                  width: parent.width * Math.min(1.0, itemCost / maxCost)
+                  width: {
+                    if (itemCost > 0) return parent.width * Math.min(1.0, itemCost / maxCost)
+                    if (itemTokens > 0) return parent.width * Math.min(1.0, itemTokens / maxTokens)
+                    return 0
+                  }
                   radius: Style.cornerRadius
                   color: isModelMode
                     ? Qt.rgba(root.cyanColor.r, root.cyanColor.g, root.cyanColor.b, 0.08)
@@ -739,8 +824,8 @@ Panel {
                     }
 
                     Text {
-                      text: root.formatCost(itemCost)
-                      color: itemCost > 0 ? root.foreground : root.subtleText
+                      text: itemCost > 0 ? root.formatCost(itemCost) : (itemTokens > 0 ? "free" : "$0.00")
+                      color: itemCost > 0 ? root.foreground : root.emeraldColor
                       font.family: root.fontFamily
                       font.pixelSize: Style.font.bodySmall
                       font.bold: true
@@ -803,4 +888,5 @@ Panel {
       }
     }
   }
+}
 }
