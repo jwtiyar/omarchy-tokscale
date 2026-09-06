@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "jwty.tokscale",
+  "name": "Tokscale",
+  "version": "1.0.0",
+  "author": "jwty",
+  "license": "MIT",
+  "description": "Tokscale token usage and spend widget for the Omarchy status bar.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Tokscale",
+    "description": "Shows daily token count and spend; click to open Tokscale TUI.",
+    "category": "AI",
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "refreshIntervalSec": 60
+    },
+    "schema": [
+      {
+        "key": "refreshIntervalSec",
+        "type": "integer",
+        "label": "Refresh interval (seconds)",
+        "min": 15,
+        "max": 600,
+        "step": 15,
+        "defaultValue": 60
+      }
+    ]
+  }
+}

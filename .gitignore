@@ -1,0 +1,6 @@
+.DS_Store
+*.log
+.qmlc
+.jsc
+node_modules/
+dist/
