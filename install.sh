@@ -21,4 +21,4 @@ if command -v omarchy >/dev/null 2>&1; then
   omarchy restart shell || true
 fi
 
-echo "Successfully installed! Add 'jwty.tokscale' to bar.layout.right in ~/.config/omarchy/shell.json if needed."
+echo "Installed. Add 'jwty.tokscale' to bar.layout.right in ~/.config/omarchy/shell.json."

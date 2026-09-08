@@ -122,7 +122,7 @@ Panel {
     return "$" + num.toFixed(2)
   }
 
-  // Exact user-preferred pill format on status bar: 144.0M ($27.86)
+  // Bar format: 144.0M ($27.86)
   readonly property string barText: {
     if (hasError && totalTokens === 0) return "tokscale error"
     if (refreshing && totalTokens === 0) return "…"
@@ -329,7 +329,7 @@ Panel {
   implicitWidth: button.implicitWidth
   implicitHeight: button.implicitHeight
 
-  // ------------------------------------------------------------- BAR BUTTON
+  // Bar button
   WidgetButton {
     id: button
     anchors.fill: parent
@@ -348,7 +348,7 @@ Panel {
     }
   }
 
-  // ------------------------------------------------------------- POPUP PANEL
+  // Popup panel
   KeyboardPanel {
     id: panel
     anchorItem: button
@@ -394,12 +394,11 @@ Panel {
           width: panelFlick.width
           spacing: Style.space(10)
 
-        // 1. COMPACT TOP HEADER: BRAND + SEGMENTED PILL
+        // Header
         Item {
           width: parent.width
           height: Style.space(26)
 
-          // Left: Minimal Brand Badge
           Row {
             anchors.left: parent.left
             anchors.verticalCenter: parent.verticalCenter
@@ -432,7 +431,7 @@ Panel {
             }
           }
 
-          // Right: Seamless Segmented Pill Switcher
+          // Period selector
           BorderSurface {
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
@@ -490,7 +489,7 @@ Panel {
           }
         }
 
-        // 2. HERO SPEND & TOKEN STATS CARD
+        // Spend and token totals
         BorderSurface {
           width: parent.width
           implicitHeight: heroContent.implicitHeight + Style.space(16)
@@ -504,7 +503,7 @@ Panel {
             anchors.centerIn: parent
             spacing: Style.space(10)
 
-            // Primary Figures Row
+            // Primary totals
             Item {
               width: parent.width
               implicitHeight: Math.max(spendCol.implicitHeight, tokenCol.implicitHeight)
@@ -554,7 +553,7 @@ Panel {
               }
             }
 
-            // Segmented Distribution Bar (Cache vs Input vs Output)
+            // Cache, input, output ratio bar
             Item {
               width: parent.width
               height: Style.space(5)
@@ -568,7 +567,6 @@ Panel {
               Row {
                 anchors.fill: parent
 
-                // Cache Segment (Violet)
                 Rectangle {
                   width: parent.width * Math.max(0, Math.min(1.0, root.cacheRatio))
                   height: parent.height
@@ -577,7 +575,6 @@ Panel {
                   visible: width > 0
                 }
 
-                // Input Segment (Cyan)
                 Rectangle {
                   width: parent.width * Math.max(0, Math.min(1.0, root.inputRatio))
                   height: parent.height
@@ -586,7 +583,6 @@ Panel {
                   visible: width > 0
                 }
 
-                // Output Segment (Emerald)
                 Rectangle {
                   width: parent.width * Math.max(0, Math.min(1.0, root.outputRatio))
                   height: parent.height
@@ -597,7 +593,7 @@ Panel {
               }
             }
 
-            // Distribution Legend
+            // Legend
             Row {
               width: parent.width
               spacing: Style.space(10)
@@ -623,7 +619,7 @@ Panel {
           }
         }
 
-        // 3. COMPACT METRICS STRIP (Cache Hit, Requests, Top Client)
+        // Metrics strip
         BorderSurface {
           width: parent.width
           implicitHeight: Style.space(30)
@@ -667,13 +663,13 @@ Panel {
           }
         }
 
-        // 4. BREAKDOWN LIST (Toggle between Models and Apps)
+        // Breakdown list
         Column {
           width: parent.width
           spacing: Style.space(6)
           visible: (root.breakdownMode === "models" ? root.topEntries.length : root.topAppEntries.length) > 0
 
-          // Header with Segmented Mode Switcher (Models vs Apps)
+          // Model and app toggle
           Item {
             width: parent.width
             implicitHeight: Style.space(22)
@@ -683,7 +679,6 @@ Panel {
               anchors.verticalCenter: parent.verticalCenter
               spacing: Style.space(4)
 
-              // Models Tab
               Rectangle {
                 implicitWidth: modelsText.implicitWidth + Style.space(12)
                 implicitHeight: Style.space(20)
@@ -711,7 +706,6 @@ Panel {
                 }
               }
 
-              // Apps Tab
               Rectangle {
                 implicitWidth: appsText.implicitWidth + Style.space(12)
                 implicitHeight: Style.space(20)
@@ -750,7 +744,6 @@ Panel {
             }
           }
 
-          // Dynamic List
           Repeater {
             model: root.breakdownMode === "models" ? root.topEntries : root.topAppEntries
 
@@ -791,7 +784,7 @@ Panel {
                 color: Qt.rgba(root.foreground.r, root.foreground.g, root.foreground.b, 0.02)
                 borderSpec: Border.none()
 
-                // Subtle proportional bar
+                // Relative bar
                 Rectangle {
                   anchors.left: parent.left
                   anchors.top: parent.top
@@ -851,7 +844,7 @@ Panel {
           }
         }
 
-        // 5. MINIMALIST LAUNCH FOOTER
+        // TUI launcher
         BorderSurface {
           width: parent.width
           implicitHeight: Style.space(28)
