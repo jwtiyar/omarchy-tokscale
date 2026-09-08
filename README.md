@@ -4,6 +4,8 @@ Status bar widget for [Omarchy](https://omarchy.org) that tracks AI token usage 
 
 Shows daily, weekly, monthly, or all-time token count and spend on the bar, with a popup dashboard and terminal TUI shortcut.
 
+![Tokscale preview](preview.png)
+
 ## Features
 
 - **Status bar pill:** Shows current token count and cost (e.g. `144.0M ($27.86)`).
