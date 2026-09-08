@@ -12,6 +12,7 @@ case "$PERIOD" in
 esac
 
 if command -v tokscale >/dev/null 2>&1; then
+  tokscale antigravity sync >/dev/null 2>&1 || true
   if [ -n "$FLAG" ]; then
     exec tokscale "$FLAG" --json --no-spinner
   else
