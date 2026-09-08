@@ -22,6 +22,8 @@ Panel {
   readonly property color amberColor: "#f59e0b"
   readonly property color violetColor: "#8b5cf6"
   readonly property string fontFamily: bar ? bar.fontFamily : Style.font.family
+  readonly property bool vertical: bar ? bar.vertical : false
+  readonly property int barSize: bar ? bar.barSize : Style.bar.sizeHorizontal
 
   readonly property string statusCommand: {
     var resolved = Qt.resolvedUrl("status.sh").toString().replace(/^file:\/\//, "")
@@ -435,9 +437,9 @@ Panel {
             Rectangle {
               id: refreshButton
               anchors.verticalCenter: parent.verticalCenter
-              width: Style.space(20)
-              height: Style.space(20)
-              radius: 10
+              width: Style.space(22)
+              height: Style.space(22)
+              radius: Style.cornerRadius
               color: refreshMouse.containsMouse
                 ? Qt.rgba(root.foreground.r, root.foreground.g, root.foreground.b, 0.12)
                 : "transparent"
@@ -445,18 +447,20 @@ Panel {
               Text {
                 id: refreshIcon
                 anchors.centerIn: parent
-                text: "󰑐"
+                text: "↻"
                 color: root.refreshing ? root.cyanColor : (refreshMouse.containsMouse ? root.foreground : root.subtleText)
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.caption
+                font.bold: true
+                rotation: root.refreshing ? 0 : 0
                 transformOrigin: Item.Center
 
-                RotationAnimator on rotation {
-                  running: root.refreshing
+                RotationAnimation on rotation {
                   from: 0
                   to: 360
-                  loops: Animation.Infinite
                   duration: 800
+                  loops: Animation.Infinite
+                  running: root.refreshing
                 }
               }
 
@@ -466,6 +470,12 @@ Panel {
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
                 onClicked: root.refresh()
+              }
+
+              PanelToolTip {
+                visible: refreshMouse.containsMouse
+                text: "Refresh data (r)"
+                fontFamily: root.fontFamily
               }
             }
           }

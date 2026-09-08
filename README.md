@@ -83,7 +83,7 @@ omarchy plugin enable jwty.tokscale --section right
 | Left click bar pill | Toggle dashboard popup |
 | Middle click bar pill | Refresh token data |
 | Right click bar pill | Open or focus `tokscale tui` |
-| Click 󰑐 in popup header | Refresh token data |
+| Click ↻ in popup header | Refresh token data |
 | Escape | Close dashboard popup |
 | Enter / Space / `r` | Refresh token data |
 
