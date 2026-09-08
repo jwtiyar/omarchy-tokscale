@@ -34,17 +34,23 @@ Panel {
 
   readonly property int refreshIntervalSec: Math.max(15, Number(setting("refreshIntervalSec", 60)) || 60)
 
-  // Period Options: Day, Week, Month
-  property string selectedPeriod: "today"
+  // Period options: Day, Week, Month, All Time
+  property string selectedPeriod: {
+    var def = setting("defaultPeriod", "today")
+    if (def === "week" || def === "month" || def === "all") return def
+    return "today"
+  }
   readonly property var periods: [
     { id: "today", label: "Day" },
     { id: "week", label: "Week" },
-    { id: "month", label: "Month" }
+    { id: "month", label: "Month" },
+    { id: "all", label: "All" }
   ]
 
   function periodLabel(id) {
     if (id === "week") return "Week"
     if (id === "month") return "Month"
+    if (id === "all") return "All Time"
     return "Today"
   }
 
@@ -370,6 +376,7 @@ Panel {
         else if (text === "1" || text === "d" || text === "D") root.selectPeriod("today")
         else if (text === "2" || text === "w" || text === "W") root.selectPeriod("week")
         else if (text === "3" || text === "m" || text === "M") root.selectPeriod("month")
+        else if (text === "4" || text === "l" || text === "L") root.selectPeriod("all")
         else if (text === "a" || text === "A") root.breakdownMode = "apps"
         else if (text === "x" || text === "X") root.breakdownMode = "models"
         else if (text === "o" || text === "O" || text === "t" || text === "T") {
@@ -453,7 +460,7 @@ Panel {
                   required property var modelData
                   required property int index
 
-                  width: Style.space(48)
+                  width: Style.space(40)
                   height: Style.space(20)
 
                   readonly property bool isSelected: root.selectedPeriod === modelData.id

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "jwty.tokscale",
   "name": "Tokscale",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "jwty",
   "license": "MIT",
   "description": "Tokscale token usage and spend widget for the Omarchy status bar.",
@@ -14,12 +14,13 @@
   },
   "barWidget": {
     "displayName": "Tokscale",
-    "description": "Shows daily token count and spend; click to open Tokscale TUI.",
+    "description": "Shows token count and spend; click to open Tokscale TUI.",
     "category": "AI",
     "allowMultiple": false,
     "defaultSection": "right",
     "defaults": {
-      "refreshIntervalSec": 60
+      "refreshIntervalSec": 60,
+      "defaultPeriod": "today"
     },
     "schema": [
       {
@@ -30,6 +31,18 @@
         "max": 600,
         "step": 15,
         "defaultValue": 60
+      },
+      {
+        "key": "defaultPeriod",
+        "type": "string",
+        "label": "Default period",
+        "options": [
+          { "value": "today", "label": "Today" },
+          { "value": "week", "label": "This week" },
+          { "value": "month", "label": "This month" },
+          { "value": "all", "label": "All time" }
+        ],
+        "defaultValue": "today"
       }
     ]
   }

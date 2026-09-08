@@ -2,13 +2,13 @@
 
 Status bar widget for [Omarchy](https://omarchy.org) that tracks AI token usage and costs via [Tokscale](https://github.com/tokscale/tokscale).
 
-Shows daily, weekly, or monthly token count and spend on the bar, with a popup dashboard and terminal TUI shortcut.
+Shows daily, weekly, monthly, or all-time token count and spend on the bar, with a popup dashboard and terminal TUI shortcut.
 
 ## Features
 
 - **Status bar pill:** Shows current token count and cost (e.g. `144.0M ($27.86)`).
 - **Dashboard popup:** Left-click to inspect tokens, spend, cache rates, request counts, and breakdowns grouped by model or client application.
-- **Time ranges:** Filter by today, this week, or this month.
+- **Time ranges:** Filter by today, this week, this month, or all time.
 - **TUI shortcut:** Right-click to launch or focus `tokscale tui` in the terminal.
 - **IPC support:** Control data refreshes and popup state via Quickshell IPC.
 
@@ -80,7 +80,7 @@ qs -p ~/omarchy/shell ipc call jwty.tokscale refresh
 # Toggle popup
 qs -p ~/omarchy/shell ipc call jwty.tokscale toggle
 
-# Set period ('today', 'week', 'month')
+# Set period ('today', 'week', 'month', 'all')
 qs -p ~/omarchy/shell ipc call jwty.tokscale setPeriod week
 
 # Set breakdown view ('models', 'apps')
