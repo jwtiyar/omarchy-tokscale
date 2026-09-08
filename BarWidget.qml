@@ -144,8 +144,9 @@ Panel {
       "Cache: " + formatTokens(totalCache) + " (" + Math.round(cacheRatio * 100) + "%)",
       "Requests: " + totalMessages,
       "",
-      "Left-click: Open compact overview & period switcher",
-      "Right-click: Open interactive Tokscale TUI"
+      "Left-click: Toggle dashboard popup",
+      "Middle-click: Refresh data",
+      "Right-click: Open Tokscale TUI"
     ]
     return lines.join("\n")
   }
@@ -348,6 +349,8 @@ Panel {
     onPressed: function(buttonCode) {
       if (buttonCode === Qt.RightButton) {
         root.launchApp()
+      } else if (buttonCode === Qt.MiddleButton) {
+        root.refresh()
       } else {
         root.toggle()
       }
@@ -429,12 +432,41 @@ Panel {
               font.letterSpacing: 1.2
             }
 
-            Text {
+            Rectangle {
+              id: refreshButton
               anchors.verticalCenter: parent.verticalCenter
-              text: root.refreshing ? "…" : ""
-              color: root.subtleText
-              font.family: root.fontFamily
-              font.pixelSize: Style.font.caption
+              width: Style.space(20)
+              height: Style.space(20)
+              radius: 10
+              color: refreshMouse.containsMouse
+                ? Qt.rgba(root.foreground.r, root.foreground.g, root.foreground.b, 0.12)
+                : "transparent"
+
+              Text {
+                id: refreshIcon
+                anchors.centerIn: parent
+                text: "󰑐"
+                color: root.refreshing ? root.cyanColor : (refreshMouse.containsMouse ? root.foreground : root.subtleText)
+                font.family: root.fontFamily
+                font.pixelSize: Style.font.caption
+                transformOrigin: Item.Center
+
+                RotationAnimator on rotation {
+                  running: root.refreshing
+                  from: 0
+                  to: 360
+                  loops: Animation.Infinite
+                  duration: 800
+                }
+              }
+
+              MouseArea {
+                id: refreshMouse
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: root.refresh()
+              }
             }
           }
 
