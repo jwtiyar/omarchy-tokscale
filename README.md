@@ -24,7 +24,17 @@ Shows daily, weekly, monthly, or all-time token count and spend on the bar, with
 
 ## Installation
 
-### Automatic
+### Marketplace
+
+If installing via the Omarchy Plugin Marketplace:
+
+```bash
+omarchy plugin install jwty.tokscale
+```
+
+Omarchy reads `defaultSection: "right"` from the manifest and inserts the widget into the right section of your bar automatically.
+
+### Script install
 
 ```bash
 git clone https://github.com/jwtiyar/omarchy-tokscale.git
@@ -32,7 +42,7 @@ cd omarchy-tokscale
 ./install.sh
 ```
 
-### Manual
+### Manual install
 
 Copy the files into your Omarchy plugin directory:
 
@@ -42,7 +52,9 @@ cp manifest.json BarWidget.qml status.sh open-tokscale.sh ~/.config/omarchy/plug
 chmod +x ~/.config/omarchy/plugins/jwty.tokscale/*.sh
 ```
 
-Add the plugin to `~/.config/omarchy/shell.json`:
+### Bar placement
+
+The widget defaults to the **right** section of the bar. You can place or move `"jwty.tokscale"` into `right`, `center`, or `left` in `~/.config/omarchy/shell.json`:
 
 ```json
 {
@@ -56,7 +68,7 @@ Add the plugin to `~/.config/omarchy/shell.json`:
 }
 ```
 
-Reload the shell:
+Reload the shell to apply changes:
 
 ```bash
 omarchy restart shell

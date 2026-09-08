@@ -21,4 +21,6 @@ if command -v omarchy >/dev/null 2>&1; then
   omarchy restart shell || true
 fi
 
-echo "Installed. Add 'jwty.tokscale' to bar.layout.right in ~/.config/omarchy/shell.json."
+echo "Installed."
+echo "The widget defaults to the right section of the bar."
+echo "To display or reposition it, add 'jwty.tokscale' to bar.layout.right (or left/center) in ~/.config/omarchy/shell.json."
