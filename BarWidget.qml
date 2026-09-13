@@ -536,6 +536,8 @@ Panel {
               }
             }
           }
+        }
+
         // Missing CLI / Error banner
         BorderSurface {
           id: errorBanner
