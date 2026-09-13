@@ -43,3 +43,12 @@ else
   echo "Installed to ${TARGET_DIR}."
   echo "Add 'jwty.tokscale' to bar.layout in ~/.config/omarchy/shell.json."
 fi
+
+if ! command -v tokscale >/dev/null 2>&1; then
+  echo ""
+  echo "==> Notice: 'tokscale' CLI was not detected on PATH."
+  echo "    To track token metrics and launch the TUI, install Tokscale:"
+  echo "      npm install -g tokscale"
+  echo "      # or: pnpm add -g tokscale"
+  echo ""
+fi

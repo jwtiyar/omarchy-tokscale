@@ -536,6 +536,51 @@ Panel {
               }
             }
           }
+        // Missing CLI / Error banner
+        BorderSurface {
+          id: errorBanner
+          visible: root.hasError
+          width: parent.width
+          implicitHeight: visible ? (errorCol.implicitHeight + Style.space(16)) : 0
+          radius: Style.cornerRadius
+          color: Qt.rgba(root.amberColor.r, root.amberColor.g, root.amberColor.b, 0.08)
+          borderSpec: Border.controlSpec("normal", Qt.rgba(root.amberColor.r, root.amberColor.g, root.amberColor.b, 0.35), root.amberColor)
+
+          Column {
+            id: errorCol
+            width: parent.width - Style.space(20)
+            anchors.centerIn: parent
+            spacing: Style.space(4)
+
+            Row {
+              spacing: Style.space(6)
+              Text {
+                text: "⚠"
+                color: root.amberColor
+                font.family: root.fontFamily
+                font.pixelSize: Style.font.bodySmall
+                font.bold: true
+              }
+              Text {
+                text: root.errorMessage.indexOf("not found") !== -1 ? "Tokscale CLI required" : "Tokscale error"
+                color: root.foreground
+                font.family: root.fontFamily
+                font.pixelSize: Style.font.bodySmall
+                font.bold: true
+              }
+            }
+
+            Text {
+              width: parent.width
+              wrapMode: Text.Wrap
+              text: root.errorMessage.indexOf("not found") !== -1
+                ? "Install the CLI to collect token data:\nnpm install -g tokscale"
+                : (root.errorMessage || "Unknown error")
+              color: root.subtleText
+              font.family: root.fontFamily
+              font.pixelSize: Style.font.caption
+            }
+          }
         }
 
         // Spend and token totals
