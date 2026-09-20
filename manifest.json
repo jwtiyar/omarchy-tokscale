@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "jwty.tokscale",
   "name": "Tokscale",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "author": "jwty",
   "license": "MIT",
   "description": "Tokscale token usage and spend widget for the Omarchy status bar.",

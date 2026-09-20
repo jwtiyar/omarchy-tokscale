@@ -11,7 +11,9 @@ cp "${SCRIPT_DIR}/manifest.json" "${TARGET_DIR}/"
 cp "${SCRIPT_DIR}/BarWidget.qml" "${TARGET_DIR}/"
 cp "${SCRIPT_DIR}/status.sh" "${TARGET_DIR}/"
 cp "${SCRIPT_DIR}/open-tokscale.sh" "${TARGET_DIR}/"
-chmod +x "${TARGET_DIR}/status.sh" "${TARGET_DIR}/open-tokscale.sh"
+mkdir -p "${TARGET_DIR}/bin"
+cp "${SCRIPT_DIR}/bin/lsof" "${TARGET_DIR}/bin/"
+chmod +x "${TARGET_DIR}/status.sh" "${TARGET_DIR}/open-tokscale.sh" "${TARGET_DIR}/bin/lsof"
 
 echo "Validating plugin..."
 if command -v omarchy >/dev/null 2>&1; then
