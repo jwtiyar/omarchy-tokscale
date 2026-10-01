@@ -26,13 +26,17 @@ Shows daily, weekly, monthly, or all-time token count and spend on the bar, with
 
 ## Installation
 
-### Using the Omarchy CLI (recommended)
+**Manual setup required:** install the Tokscale CLI using one of the commands above before adding the widget. `omarchy plugin add` installs the widget files but does not install the CLI or run this repository's `install.sh`.
+
+### Add the widget with the Omarchy CLI
 
 ```bash
-omarchy plugin add https://github.com/jwtiyar/omarchy-tokscale.git
+omarchy plugin add https://github.com/jwtiyar/omarchy-tokscale.git --enable
 ```
 
 Omarchy asks: `Place jwty.tokscale in which bar section?` (`right`, `center`, or `left`, defaulting to `right`), then enables and places the widget immediately.
+
+If the CLI is missing, the bar shows `Tokscale setup required`. Click it to see the install command and use **Copy command**. Run the command in your terminal, then click ↻ or press `r` in the popup to refresh. The widget also retries automatically at its configured refresh interval.
 
 ### Script install
 
@@ -64,6 +68,14 @@ omarchy plugin enable jwty.tokscale --section right
 
 Or add `"jwty.tokscale"` to `bar.layout` in `~/.config/omarchy/shell.json`.
 
+### Remove the widget
+
+```bash
+omarchy plugin remove jwty.tokscale
+```
+
+This removes the widget. The separately installed Tokscale CLI and its data remain available.
+
 ### Changing bar placement
 
 Move the widget between sections anytime:
@@ -84,6 +96,7 @@ omarchy plugin enable jwty.tokscale --section right
 | Middle click bar pill | Refresh token data |
 | Right click bar pill | Open or focus `tokscale tui` |
 | Click ↻ in popup header | Refresh token data |
+| Copy command in setup instructions | Copy `npm install -g tokscale` to the clipboard |
 | Escape | Close dashboard popup |
 | Enter / Space / `r` | Refresh token data |
 
@@ -106,6 +119,10 @@ qs -p ~/omarchy/shell ipc call jwty.tokscale setMode apps
 qs -p ~/omarchy/shell ipc call jwty.tokscale launch
 ```
 
+## Check the missing-CLI flow
+
+Run `bash tests/check-setup.sh` on an Omarchy desktop. The check uses a temporary home and a fixture CLI to test the setup message, mouse and keyboard copying, and recovery after installation. It restores the clipboard and saves a log and screenshot under `/tmp/tokscale-setup-evidence.*`.
+
 ## Credits
 
 - [Tokscale](https://github.com/tokscale/tokscale) for the CLI, data collection, and TUI.
@@ -114,4 +131,3 @@ qs -p ~/omarchy/shell ipc call jwty.tokscale launch
 ## License
 
 MIT © [jwty](https://github.com/jwtiyar)
-

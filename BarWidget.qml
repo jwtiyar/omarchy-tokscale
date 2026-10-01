@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Io
 import qs.Commons
 import qs.Ui
+import qs.Ui as Ui
 
 Panel {
   id: root
@@ -77,6 +78,7 @@ Panel {
   property bool refreshing: false
   property bool hasError: false
   property string errorMessage: ""
+  readonly property bool missingCli: hasError && errorMessage === "tokscale not found in PATH"
 
   function formatAppName(slug) {
     var s = String(slug || "unknown").toLowerCase()
@@ -132,12 +134,14 @@ Panel {
 
   // Bar format: 144.0M ($27.86)
   readonly property string barText: {
+    if (missingCli) return "Tokscale setup required"
     if (hasError && totalTokens === 0) return "tokscale error"
     if (refreshing && totalTokens === 0) return "…"
     return formatTokens(totalTokens) + " (" + formatCost(totalCost) + ")"
   }
 
   readonly property string tooltipText: {
+    if (missingCli) return "Tokscale CLI is not installed.\nLeft-click for installation instructions."
     if (hasError) return "Tokscale error: " + (errorMessage || "error") + "\nRight-click to open TUI"
     var lines = [
       "Tokscale (" + selectedPeriodLabel + ")",
@@ -160,6 +164,10 @@ Panel {
   }
 
   function launchApp() {
+    if (missingCli) {
+      root.open()
+      return
+    }
     if (root.bar) {
       root.bar.run(root.launchCommand)
     }
@@ -341,6 +349,7 @@ Panel {
   // Bar button
   WidgetButton {
     id: button
+    objectName: "tokscaleBarButton"
     anchors.fill: parent
     bar: root.bar
     text: root.barText
@@ -372,10 +381,12 @@ Panel {
 
     PanelKeyCatcher {
       id: keyCatcher
+      objectName: "tokscalePanelKeys"
       anchors.fill: parent
 
       onCloseRequested: root.close()
       onActivateRequested: root.refresh()
+      onTabRequested: if (root.missingCli) copyInstallButton.forceActiveFocus()
       onTextKey: function(text) {
         if (text === "r" || text === "R") root.refresh()
         else if (text === "1" || text === "d" || text === "D") root.selectPeriod("today")
@@ -482,6 +493,7 @@ Panel {
 
           // Period selector
           BorderSurface {
+            visible: !root.missingCli
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
             implicitHeight: Style.space(24)
@@ -541,6 +553,7 @@ Panel {
         // Missing CLI / Error banner
         BorderSurface {
           id: errorBanner
+          objectName: "tokscaleErrorBanner"
           visible: root.hasError
           width: parent.width
           implicitHeight: visible ? (errorCol.implicitHeight + Style.space(16)) : 0
@@ -564,7 +577,7 @@ Panel {
                 font.bold: true
               }
               Text {
-                text: root.errorMessage.indexOf("not found") !== -1 ? "Tokscale CLI required" : "Tokscale error"
+                text: root.missingCli ? "Install Tokscale CLI" : "Tokscale error"
                 color: root.foreground
                 font.family: root.fontFamily
                 font.pixelSize: Style.font.bodySmall
@@ -575,9 +588,53 @@ Panel {
             Text {
               width: parent.width
               wrapMode: Text.Wrap
-              text: root.errorMessage.indexOf("not found") !== -1
-                ? "Install the CLI to collect token data:\nnpm install -g tokscale"
+              text: root.missingCli
+                ? "Run this command in your terminal:"
                 : (root.errorMessage || "Unknown error")
+              color: root.subtleText
+              font.family: root.fontFamily
+              font.pixelSize: Style.font.caption
+            }
+
+            TextEdit {
+              id: installCommand
+              visible: root.missingCli
+              width: parent.width
+              text: "npm install -g tokscale"
+              readOnly: true
+              selectByMouse: true
+              wrapMode: TextEdit.Wrap
+              color: root.foreground
+              selectionColor: root.accentColor
+              selectedTextColor: Color.background
+              font.family: "monospace"
+              font.pixelSize: Style.font.bodySmall
+            }
+
+            Ui.Button {
+              id: copyInstallButton
+              objectName: "copyInstallCommand"
+              visible: root.missingCli
+              text: copiedTimer.running ? "Copied" : "Copy command"
+              focusable: true
+              bordered: true
+              foreground: root.foreground
+              fontFamily: root.fontFamily
+              fontSize: Style.font.caption
+              onClicked: {
+                installCommand.selectAll()
+                installCommand.copy()
+                installCommand.deselect()
+                copiedTimer.restart()
+              }
+              Timer { id: copiedTimer; interval: 2000 }
+            }
+
+            Text {
+              visible: root.missingCli
+              width: parent.width
+              wrapMode: Text.Wrap
+              text: "After installation, click ↻ or press r to refresh."
               color: root.subtleText
               font.family: root.fontFamily
               font.pixelSize: Style.font.caption
@@ -587,6 +644,7 @@ Panel {
 
         // Spend and token totals
         BorderSurface {
+          visible: !root.missingCli
           width: parent.width
           implicitHeight: heroContent.implicitHeight + Style.space(16)
           radius: Style.cornerRadius
@@ -717,6 +775,7 @@ Panel {
 
         // Metrics strip
         BorderSurface {
+          visible: !root.missingCli
           width: parent.width
           implicitHeight: Style.space(30)
           radius: Style.cornerRadius
@@ -763,7 +822,7 @@ Panel {
         Column {
           width: parent.width
           spacing: Style.space(6)
-          visible: (root.breakdownMode === "models" ? root.topEntries.length : root.topAppEntries.length) > 0
+          visible: !root.missingCli && (root.breakdownMode === "models" ? root.topEntries.length : root.topAppEntries.length) > 0
 
           // Model and app toggle
           Item {
@@ -942,6 +1001,7 @@ Panel {
 
         // TUI launcher
         BorderSurface {
+          visible: !root.missingCli
           width: parent.width
           implicitHeight: Style.space(28)
           radius: Style.cornerRadius
